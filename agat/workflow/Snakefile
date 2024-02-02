@@ -34,7 +34,6 @@ rule agat_cds:
         OUTPATH / "{sample}/predicted_cds.fa",  
     params:
         extra = config["agat"]["extra_params"],    
-        pyfile = workflow.source_path("scripts/by_id.py")      
     conda:
         "envs/agat.yaml"
     log: 
