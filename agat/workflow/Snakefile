@@ -57,7 +57,7 @@ rule agat_proteins:
     output:
         OUTPATH / "{sample}/predicted_proteins.fa"        
     params:
-        extra = config["agat"]["extra_params"]  
+        extra = config["agat"]["extra_params"],  
         agat_basename = lambda wildcards: Path(input_from_df(wildcards)["gff"]).name.stem        
     conda:
         "envs/agat.yaml"
