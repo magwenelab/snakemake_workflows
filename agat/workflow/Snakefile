@@ -1,3 +1,4 @@
+# Base AGAT workflow
 
 import pandas as pd
 from pathlib import Path
