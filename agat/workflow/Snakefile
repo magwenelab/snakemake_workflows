@@ -1,7 +1,10 @@
 # Base AGAT workflow
 
-import pandas as pd
+
+import os.path
 from pathlib import Path
+import pandas as pd
+
 
 configfile: "config/config.yaml"
 
@@ -35,7 +38,7 @@ rule agat_cds:
         OUTPATH / "{sample}/predicted_cds.fa",  
     params:
         extra = config["agat"]["extra_params"],   
-        agat_basename = lambda wildcards: Path(input_from_df(wildcards)["gff"]).name.stem
+        agat_basename = lambda wildcards: Path(os.path.basename(input_from_df(wildcards)["gff"])).stem 
     conda:
         "envs/agat.yaml"
     log: 
@@ -58,7 +61,7 @@ rule agat_proteins:
         OUTPATH / "{sample}/predicted_proteins.fa"        
     params:
         extra = config["agat"]["extra_params"],  
-        agat_basename = lambda wildcards: Path(input_from_df(wildcards)["gff"]).name.stem        
+        agat_basename = lambda wildcards: Path(os.path.basename(input_from_df(wildcards)["gff"])).stem        
     conda:
         "envs/agat.yaml"
     log: 
