@@ -19,7 +19,7 @@ rule all:
         expand(OUTPATH / "{sample}/predicted_proteins.fa", sample=SAMPLES),
 
 
-def agat_input_from_df(wildcards):
+def input_from_df(wildcards):
     s = SAMPLE_TABLE.loc[wildcards.sample,]
     return {
         "gff": s["gff"],
@@ -29,12 +29,12 @@ def agat_input_from_df(wildcards):
 
 rule agat_cds:
     input:
-        unpack(agat_input_from_df)
+        unpack(input_from_df)
     output:
         OUTPATH / "{sample}/predicted_cds.fa",  
     params:
         extra = config["agat"]["extra_params"],   
-        agat_basename = Path(input.gff).name.stem
+        agat_basename = lambda wildcards: Path(input_from_df(wildcards)["gff"]).name.stem
     conda:
         "envs/agat.yaml"
     log: 
