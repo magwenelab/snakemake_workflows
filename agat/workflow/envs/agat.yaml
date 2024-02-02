@@ -1,0 +1,9 @@
+name: agat
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - agat
+  - seqkit
+  - biopython
+

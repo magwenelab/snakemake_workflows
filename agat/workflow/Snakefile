@@ -1,0 +1,88 @@
+
+import pandas as pd
+from pathlib import Path
+
+configfile: "config/config.yaml"
+
+SAMPLE_TABLE = pd.read_csv(config["agat"]["sample_table"]).set_index("sample", drop=False)
+SAMPLES = list(set(SAMPLE_TABLE["sample"]))
+
+OUTDIR = config["output_directory"]
+OUTPATH = Path(OUTDIR) / "agat"
+
+
+rule all:
+    input:
+        expand(OUTPATH / "softlinked/{sample}_cds.fa", sample=SAMPLES),
+        expand(OUTPATH / "softlinked/{sample}_proteins.fa", sample=SAMPLES),
+        expand(OUTPATH / "{sample}/predicted_cds.fa", sample=SAMPLES),
+        expand(OUTPATH / "{sample}/predicted_proteins.fa", sample=SAMPLES),
+
+
+def agat_input_from_df(wildcards):
+    s = SAMPLE_TABLE.loc[wildcards.sample,]
+    return {
+        "gff": s["gff"],
+        "fasta": s["fasta"],
+    }
+
+
+rule agat_cds:
+    input:
+        unpack(agat_input_from_df)
+    output:
+        OUTPATH / "{sample}/predicted_cds.fa",  
+    params:
+        extra = config["agat"]["extra_params"],    
+        pyfile = workflow.source_path("scripts/by_id.py")      
+    conda:
+        "envs/agat.yaml"
+    log: 
+        cds = "logs/agat/{sample}_cds.log",
+    shell:
+        "agat_sp_extract_sequences.pl "
+        "-g {input.gff} " 
+        "-f {input.fasta} "
+        "-o {output} "
+        "{params.extra} "
+        "&> {log.cds} "
+        " && "
+        "rm {wildcards.sample}.agat.log || true"
+
+
+rule agat_proteins:
+    input:
+        unpack(agat_input_from_df)
+    output:
+        OUTPATH / "{sample}/predicted_proteins.fa"        
+    params:
+        extra = config["agat"]["extra_params"]          
+    conda:
+        "envs/agat.yaml"
+    log: 
+        prots = "logs/agat/{sample}_prots.log"
+    shell:
+        "agat_sp_extract_sequences.pl "
+        "-g {input.gff} " 
+        "-f {input.fasta} "
+        "-o {output} "
+        "-p "
+        "{params.extra} "
+        "&> {log.prots} " 
+        " && "
+        "rm {wildcards.sample}.agat.log || true"
+
+
+
+
+rule make_links:
+    input:  
+        cds = rules.agat_cds.output,
+        prots = rules.agat_proteins.output,
+    output:
+        cds = OUTPATH / "softlinked/{sample}_cds.fa",
+        prots = OUTPATH / "softlinked/{sample}_proteins.fa"
+    shell:
+        "ln -s {workflow.workdir_init}/{input.cds} {output.cds} "
+        " && "
+        "ln -s {workflow.workdir_init}/{input.prots} {output.prots}"  
