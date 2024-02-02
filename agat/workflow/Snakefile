@@ -52,11 +52,12 @@ rule agat_cds:
 
 rule agat_proteins:
     input:
-        unpack(agat_input_from_df)
+        unpack(input_from_df)
     output:
         OUTPATH / "{sample}/predicted_proteins.fa"        
     params:
-        extra = config["agat"]["extra_params"]          
+        extra = config["agat"]["extra_params"]  
+        agat_basename = lambda wildcards: Path(input_from_df(wildcards)["gff"]).name.stem        
     conda:
         "envs/agat.yaml"
     log: 
@@ -70,7 +71,7 @@ rule agat_proteins:
         "{params.extra} "
         "&> {log.prots} " 
         " && "
-        "rm {wildcards.sample}.agat.log || true"
+        "rm {params.agat_basename}.agat.log || true"
 
 
 
