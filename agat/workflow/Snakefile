@@ -30,6 +30,10 @@ def input_from_df(wildcards):
         "fasta": s["fasta"],
     }
 
+def agat_basename(wildcards):
+    gff_file = SAMPLE_TABLE.loc[wildcards.sample,"gff"]
+    return Path(Path(gff_file).name).stem
+
 
 rule agat_cds:
     input:
@@ -38,7 +42,7 @@ rule agat_cds:
         OUTPATH / "{sample}/predicted_cds.fa",  
     params:
         extra = config["agat"]["extra_params"],   
-        agat_basename = lambda wildcards: Path(os.path.basename(input_from_df(wildcards)["gff"])).stem 
+        agat_basename = lambda wildcards: agat_basename(wildcards)
     conda:
         "envs/agat.yaml"
     log: 
@@ -61,7 +65,7 @@ rule agat_proteins:
         OUTPATH / "{sample}/predicted_proteins.fa"        
     params:
         extra = config["agat"]["extra_params"],  
-        agat_basename = lambda wildcards: Path(os.path.basename(input_from_df(wildcards)["gff"])).stem        
+        agat_basename = lambda wildcards: agat_basename(wildcards)       
     conda:
         "envs/agat.yaml"
     log: 
