@@ -2,5 +2,5 @@
 output_directory: "results"
 
 agat:
-  sample_table: "agat_table.csv" 
+  sample_table: "config/agat_table.csv" 
   extra_params: ""

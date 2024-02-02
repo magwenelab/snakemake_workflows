@@ -33,7 +33,8 @@ rule agat_cds:
     output:
         OUTPATH / "{sample}/predicted_cds.fa",  
     params:
-        extra = config["agat"]["extra_params"],    
+        extra = config["agat"]["extra_params"],   
+        agat_basename = Path(input.gff).name.stem
     conda:
         "envs/agat.yaml"
     log: 
@@ -46,7 +47,7 @@ rule agat_cds:
         "{params.extra} "
         "&> {log.cds} "
         " && "
-        "rm {wildcards.sample}.agat.log || true"
+        "rm {params.agat_basename}.agat.log || true"
 
 
 rule agat_proteins:
