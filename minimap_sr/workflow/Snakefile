@@ -1,0 +1,66 @@
+# Base minimap2 short-read workflow
+
+
+import os.path
+from pathlib import Path
+import pandas as pd
+
+
+configfile: "config/config.yaml"
+
+SAMPLE_TABLE = pd.read_csv(config["minimap_sr"]["sample_table"]).set_index("sample", drop=False)
+SAMPLES = list(set(SAMPLE_TABLE["sample"]))
+
+OUTDIR = config["output_directory"]
+OUTPATH = Path(OUTDIR) / "minimap_sr"
+
+
+rule all:
+    input:
+        expand(OUTPATH / "softlinked/{sample}.bam", sample=SAMPLES),
+        expand(OUTPATH / "softlinked/{sample}.bam.csi", sample=SAMPLES),
+        expand(OUTPATH / "{sample}/aln.bam", sample=SAMPLES),
+        expand(OUTPATH / "{sample}/aln.bam.csi", sample=SAMPLES),
+
+
+def input_from_df(wildcards):
+    s = SAMPLE_TABLE.loc[wildcards.sample,]
+    return {
+        "fq1": s["fq1"],
+        "fq2": s["fq2"],
+        "refgenome": s["refgenome"],
+    }
+
+
+rule minimap_sr:
+    input:
+        unpack(input_from_df)
+    output: 
+        bam =  OUTPATH / "{sample}/aln.bam",
+        idx = OUTPATH / "{sample}/aln.bam.csi",
+    params:
+        extra = config["minimap_sr"]["extra_params"],   
+    conda:
+        "envs/minimap.yaml"
+    threads: 
+        config["minimap_sr"]["threads"]        
+    shell:
+        "minimap2 -t {threads} -a -x sr {input.refgenome} {input.fq1} {input.fq1}  | "
+        "samtools fixmate -u -m - - | "
+        "samtools sort -u -@2  - | "
+        "samtools markdup -O bam -@8 --reference {input.refgenome} - {output.bam}"
+        " && "
+        "samtools index -c {output.bam}"
+
+
+rule make_links:
+    input:  
+        bam = rules.minimap_sr.output.bam,
+        idx = rules.minimap_sr.output.idx
+    output:
+        bam = OUTPATH / "softlinked/{sample}.bam",
+        idx = OUTPATH / "softlinked/{sample}.bam.csi"
+    shell:
+        "ln -s {workflow.workdir_init}/{input.bam} {output.bam} "
+        " && "
+        "ln -s {workflow.workdir_init}/{input.idx} {output.idx}"  

@@ -1,8 +1,8 @@
-name: agat
+name: minimap
 channels:
   - conda-forge
   - bioconda
 dependencies:
-  - agat
-  - biopython
+  - minimap2
+  - samtools
 
