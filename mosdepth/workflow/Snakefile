@@ -1,0 +1,73 @@
+# Base mosdepth workflow
+
+
+import os.path
+from pathlib import Path
+import pandas as pd
+
+
+configfile: "config/config.yaml"
+
+SAMPLE_TABLE = pd.read_csv(config["mosdepth"]["sample_table"]).set_index("sample", drop=False)
+SAMPLES = list(set(SAMPLE_TABLE["sample"]))
+
+OUTDIR = config["output_directory"]
+OUTPATH = Path(OUTDIR) / "mosdepth"
+
+
+rule all:
+    input:
+        expand(OUTPATH / "{sample}/depth.mosdepth.summary.txt", sample=SAMPLES),
+        expand(OUTPATH / "{sample}/depth.regions.bed.gz", sample=SAMPLES),
+        expand(OUTPATH / "{sample}/depth.regions.bed.gz.csi", sample=SAMPLES),
+        expand(OUTPATH / "softlinked/{sample}.summary.txt", sample=SAMPLES),
+        expand(OUTPATH / "softlinked/{sample}.regions.bed.gz", sample=SAMPLES),
+        expand(OUTPATH / "softlinked/{sample}.regions.bed.gz.csi", sample=SAMPLES)
+
+
+
+def input_from_df(wildcards):
+    s = SAMPLE_TABLE.loc[wildcards.sample,]
+    return {
+        "bam": s["bam"],
+    }
+
+
+rule mosdepth:
+    input:
+        unpack(input_from_df)
+    output: 
+        outdir = directory(OUTPATH / "{sample}"),
+        summary = OUTPATH / "{sample}/depth.mosdepth.summary.txt",
+        regions = OUTPATH / "{sample}/depth.regions.bed.gz",
+        idx = OUTPATH / "{sample}/depth.regions.bed.gz.csi",
+    params:
+        prefix = lambda wildcards, output: Path(output.outdir) / "depth",
+        window = config["mosdepth"]["window"],
+        extra = config["mosdepth"]["extra_params"],   
+    conda:
+        "envs/mosdepth.yaml"
+    threads: 
+        config["mosdepth"]["threads"]        
+    shell:
+        "mkdir -p {output.outdir} "
+        " && "
+        "mosdepth -t {threads} -b {params.window} {params.extra} {params.prefix} {input.bam} "
+
+
+
+rule make_links:
+    input:  
+        summary = rules.mosdepth.output.summary,
+        regions = rules.mosdepth.output.regions,
+        idx = rules.mosdepth.output.idx
+    output:
+        summary = OUTPATH / "softlinked/{sample}.summary.txt",  
+        regions = OUTPATH / "softlinked/{sample}.regions.bed.gz",
+        idx = OUTPATH / "softlinked/{sample}.regions.bed.gz.csi"
+    shell:
+        "ln -s {workflow.workdir_init}/{input.summary} {output.summary} "
+        " && "
+        "ln -s {workflow.workdir_init}/{input.regions} {output.regions} "
+        " && "
+        "ln -s {workflow.workdir_init}/{input.idx} {output.idx}"  

@@ -1,0 +1,20 @@
+from snakemake.utils import min_version
+min_version("6.0")
+
+configfile: "config/config.yaml"
+
+module mosdepth:
+    snakefile:
+        # can use URL
+        #"https://raw.githubusercontent.com/magwenelab/snakemake_workflows/main/mosdepth/workflow/Snakefile"
+        # or local path
+        "/home/pmagwene/gits/snakemake_workflows/mosdepth/workflow/Snakefile"
+    config: config
+
+use rule * from mosdepth as mosdepth_*
+
+
+rule all:
+    input:
+        rules.mosdepth_all.input,
+    default_target: True

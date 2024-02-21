@@ -1,0 +1,8 @@
+
+output_directory: "results"
+
+mosdepth:
+  sample_table: "config/mosdepth_table.csv" 
+  extra_params: ""
+  window: 1000
+  threads: 8
