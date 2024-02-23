@@ -60,7 +60,8 @@ rule agat_cds:
 
 rule agat_proteins:
     input:
-        unpack(input_from_df)
+        unpack(input_from_df),
+        rules.agat_cds.output
     output:
         OUTPATH / "{sample}/predicted_proteins.fa"        
     params:
