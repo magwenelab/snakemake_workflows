@@ -61,6 +61,6 @@ rule make_links:
         bam = OUTPATH / "softlinked/{sample}.bam",
         idx = OUTPATH / "softlinked/{sample}.bam.csi"
     shell:
-        "ln -s {workflow.workdir_init}/{input.bam} {output.bam} "
+        "ln -s -r {workflow.workdir_init}/{input.bam} {output.bam} "
         " && "
-        "ln -s {workflow.workdir_init}/{input.idx} {output.idx}"  
+        "ln -s -r {workflow.workdir_init}/{input.idx} {output.idx}"  

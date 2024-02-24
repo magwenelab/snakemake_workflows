@@ -66,8 +66,8 @@ rule make_links:
         regions = OUTPATH / "softlinked/{sample}.regions.bed.gz",
         idx = OUTPATH / "softlinked/{sample}.regions.bed.gz.csi"
     shell:
-        "ln -s {workflow.workdir_init}/{input.summary} {output.summary} "
+        "ln -s -r {workflow.workdir_init}/{input.summary} {output.summary} "
         " && "
-        "ln -s {workflow.workdir_init}/{input.regions} {output.regions} "
+        "ln -s -r {workflow.workdir_init}/{input.regions} {output.regions} "
         " && "
-        "ln -s {workflow.workdir_init}/{input.idx} {output.idx}"  
+        "ln -s -r {workflow.workdir_init}/{input.idx} {output.idx}"  

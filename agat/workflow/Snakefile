@@ -91,6 +91,6 @@ rule make_links:
         cds = OUTPATH / "softlinked/{sample}_cds.fa",
         prots = OUTPATH / "softlinked/{sample}_proteins.fa"
     shell:
-        "ln -s {workflow.workdir_init}/{input.cds} {output.cds} "
+        "ln -s -r {workflow.workdir_init}/{input.cds} {output.cds} "
         " && "
-        "ln -s {workflow.workdir_init}/{input.prots} {output.prots}"  
+        "ln -s -r {workflow.workdir_init}/{input.prots} {output.prots}"  
