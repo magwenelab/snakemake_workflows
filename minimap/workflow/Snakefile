@@ -1,0 +1,56 @@
+# Base minimap2 short-read workflow
+
+
+import os.path
+from pathlib import Path
+import pandas as pd
+
+
+configfile: "config/config.yaml"
+
+SAMPLE_TABLE = pd.read_csv(config["minimap_sr"]["sample_table"]).set_index("sample", drop=False)
+SAMPLES = list(set(SAMPLE_TABLE["sample"]))
+
+OUTDIR = config["output_directory"]
+OUTPATH = Path(OUTDIR) / "minimap_sr"
+
+
+def input_from_df(wildcards):
+    s = SAMPLE_TABLE.loc[wildcards.sample,]
+    return {
+        "fq1": s["fq1"],
+        "fq2": s["fq2"],
+        "refgenome": s["refgenome"],
+    }
+
+
+
+rule all:
+    input:
+        expand(OUTPATH / "softlinked/{sample}.bam", sample=SAMPLES),
+        expand(OUTPATH / "softlinked/{sample}.bam.csi", sample=SAMPLES),
+        expand(OUTPATH / "{sample}/aln.bam", sample=SAMPLES),
+        expand(OUTPATH / "{sample}/aln.bam.csi", sample=SAMPLES),
+
+
+# minimap rules defined in sub rule files, pick one based on config file
+if config["minimap"]["workflow"] == "short_reads_mapped":
+    include: "rules/minimap_sr_mapped.smk"
+else:
+    include: "rules/minimap_sr.smk"
+
+
+
+
+rule make_links:
+    input:  
+        bam = rules.minimap.output.bam,
+        idx = rules.minimap.output.idx
+    output:
+        bam = OUTPATH / "softlinked/{sample}.bam",
+        idx = OUTPATH / "softlinked/{sample}.bam.csi"
+    shell:
+        "ln -s -r {workflow.workdir_init}/{input.bam} {output.bam} "
+        " && "
+        "ln -s -r {workflow.workdir_init}/{input.idx} {output.idx}"  
+

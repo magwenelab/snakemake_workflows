@@ -3,15 +3,15 @@ min_version("6.0")
 
 configfile: "config/config.yaml"
 
-module minimap_sr:
+module minimap:
     snakefile:
         # can use URL
-        #"https://raw.githubusercontent.com/magwenelab/snakemake_workflows/main/minimap_sr/workflow/Snakefile"
+        #"https://raw.githubusercontent.com/magwenelab/snakemake_workflows/main/minimap/workflow/Snakefile"
         # or local path
-        "/home/pmagwene/gits/snakemake_workflows/minimap_sr/workflow/Snakefile"
+        "/home/pmagwene/gits/snakemake_workflows/minimap/workflow/Snakefile"
     config: config
 
-use rule * from minimap_sr as minimap_*
+use rule * from minimap as minimap_*
 
 
 rule all:

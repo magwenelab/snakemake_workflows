@@ -1,7 +1,8 @@
 
 output_directory: "results"
 
-minimap_sr:
+minimap:
   sample_table: "config/minimap_table.csv" 
   extra_params: ""
   threads: 8
+  workflow: "short_reads"  # short_reads, short_reads_mapped
