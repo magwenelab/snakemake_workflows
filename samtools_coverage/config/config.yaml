@@ -1,0 +1,7 @@
+
+output_directory: "results"
+
+samtools_coverage:
+  sample_table: "config/samtools_coverage_table.csv" 
+  extra_params: ""
+  threads: 1

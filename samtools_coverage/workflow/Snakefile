@@ -1,0 +1,65 @@
+# Base samtools_coverage workflow
+
+
+import os.path
+from pathlib import Path
+import pandas as pd
+
+
+configfile: "config/config.yaml"
+
+SAMPLE_TABLE = pd.read_csv(config["samtools_coverage"]["sample_table"]).set_index("sample", drop=False)
+SAMPLES = list(set(SAMPLE_TABLE["sample"]))
+
+OUTDIR = config["output_directory"]
+OUTPATH = Path(OUTDIR) / "samtools_coverage"
+
+
+rule all:
+    input:
+        expand(OUTPATH / "{sample}/coverage.done", sample=SAMPLES),
+        expand(OUTPATH / "{sample}/coverage.tsv", sample=SAMPLES),
+        expand(OUTPATH / "softlinked/{sample}_coverage.tsv", sample=SAMPLES),
+
+
+
+def input_from_df(wildcards):
+    s = SAMPLE_TABLE.loc[wildcards.sample,]
+    return {
+        "bam": s["bam"],
+    }
+
+
+rule samtools_coverage:
+    input:
+        unpack(input_from_df)
+    output: 
+        tsv = OUTPATH / "{sample}/coverage.tsv",
+        #alldone = touch(OUTPATH / "coverage_done.txt")
+    params:
+        extra = config["samtools_coverage"]["extra_params"],   
+    conda:
+        "envs/samtools_coverage.yaml"     
+    shell:
+        "samtools coverage {params.extra} {input.bam} > {output.tsv} "
+
+rule coverage_table:
+    input:
+        tsv = rules.samtools_coverage.output.tsv,
+    output:
+        touch(OUTPATH / "{sample}/coverage.done")
+    params:
+        sample = lambda wildcards: wildcards.sample,
+        combined = OUTPATH / "coverage_table.tsv"
+    shell:
+        "awk -F'\t' -v OFS='\t' -v SAMPLE='{params.sample}' '{{print SAMPLE, $0}}' {input.tsv} >> {params.combined} "
+
+
+
+rule make_links:
+    input:  
+        rules.samtools_coverage.output.tsv
+    output:
+        OUTPATH / "softlinked/{sample}_coverage.tsv",  
+    shell:
+        "ln -s -r {workflow.workdir_init}/{input} {output} "
