@@ -1,0 +1,19 @@
+from snakemake.utils import min_version
+min_version("6.0")
+
+configfile: "config/config.yaml"
+
+module snippy:
+    snakefile:
+        # can use URL
+        #"https://raw.githubusercontent.com/magwenelab/snakemake_workflows/main/snippy/workflow/Snakefile"
+        # or local path
+        "/home/pmagwene/gits/snakemake_workflows/snippy/workflow/Snakefile"
+    config: config
+
+use rule * from snippy as snippy_*
+
+rule all:
+    input:
+        rules.snippy_all.input,
+    default_target: True

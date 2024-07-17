@@ -8,11 +8,11 @@ import pandas as pd
 
 configfile: "config/config.yaml"
 
-SAMPLE_TABLE = pd.read_csv(config["minimap_sr"]["sample_table"]).set_index("sample", drop=False)
+SAMPLE_TABLE = pd.read_csv(config["minimap"]["sample_table"]).set_index("sample", drop=False)
 SAMPLES = list(set(SAMPLE_TABLE["sample"]))
 
 OUTDIR = config["output_directory"]
-OUTPATH = Path(OUTDIR) / "minimap_sr"
+OUTPATH = Path(OUTDIR) / "minimap"
 
 
 def input_from_df(wildcards):

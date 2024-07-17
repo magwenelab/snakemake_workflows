@@ -7,11 +7,11 @@ rule minimap:
         bam =  OUTPATH / "{sample}/aln.bam",
         idx = OUTPATH / "{sample}/aln.bam.csi",
     params:
-        extra = config["minimap_sr"]["extra_params"],   
+        extra = config["minimap"]["extra_params"],   
     conda:
-        "envs/minimap.yaml"
+        "../envs/minimap.yaml"
     threads: 
-        config["minimap_sr"]["threads"]        
+        config["minimap"]["threads"]        
     shell:
         "minimap2 -t {threads} -a -x sr {input.refgenome} {input.fq1} {input.fq2}  | "
         "samtools fixmate -u -m - - | "

@@ -1,0 +1,7 @@
+
+output_directory: "results"
+
+snippy:
+  sample_table: "config/snippy_table.csv" 
+  threads: 4
+  extra_params: ""   
