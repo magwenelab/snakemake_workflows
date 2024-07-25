@@ -17,6 +17,9 @@ OUTPATH = Path(OUTDIR) / "mosdepth"
 
 rule all:
     input:
+# depth.mosdepth.global.dist.txt  depth.mosdepth.region.dist.txt 
+        expand(OUTPATH / "{sample}/depth.mosdepth.global.dist.txt", sample=SAMPLES),
+        expand(OUTPATH / "{sample}/depth.mosdepth.region.dist.txt", sample=SAMPLES),
         expand(OUTPATH / "{sample}/depth.mosdepth.summary.txt", sample=SAMPLES),
         expand(OUTPATH / "{sample}/depth.regions.bed.gz", sample=SAMPLES),
         expand(OUTPATH / "{sample}/depth.regions.bed.gz.csi", sample=SAMPLES),
@@ -38,6 +41,8 @@ rule mosdepth:
         unpack(input_from_df)
     output: 
         outdir = directory(OUTPATH / "{sample}"),
+        dist_global = OUTPATH / "{sample}/depth.mosdepth.global.dist.txt",
+        dist_region = OUTPATH / "{sample}/depth.mosdepth.region.dist.txt",
         summary = OUTPATH / "{sample}/depth.mosdepth.summary.txt",
         regions = OUTPATH / "{sample}/depth.regions.bed.gz",
         idx = OUTPATH / "{sample}/depth.regions.bed.gz.csi",
@@ -58,14 +63,22 @@ rule mosdepth:
 
 rule make_links:
     input:  
+        dist_global = rules.mosdepth.output.dist_global,
+        dist_region = rules.mosdepth.output.dist_region,
         summary = rules.mosdepth.output.summary,
         regions = rules.mosdepth.output.regions,
         idx = rules.mosdepth.output.idx
     output:
+        dist_global = OUTPATH / "softlinked/{sample}.global.dist.txt",
+        dist_region = OUTPATH / "softlinked/{sample}.region.dist.txt",
         summary = OUTPATH / "softlinked/{sample}.summary.txt",  
         regions = OUTPATH / "softlinked/{sample}.regions.bed.gz",
         idx = OUTPATH / "softlinked/{sample}.regions.bed.gz.csi"
     shell:
+        "ln -s -r {workflow.workdir_init}/{input.dist_global} {output.dist_global} "
+        " && "
+        "ln -s -r {workflow.workdir_init}/{input.dist_region} {output.dist_region} "
+        " && "
         "ln -s -r {workflow.workdir_init}/{input.summary} {output.summary} "
         " && "
         "ln -s -r {workflow.workdir_init}/{input.regions} {output.regions} "

@@ -6,3 +6,5 @@ minimap:
   extra_params: ""
   threads: 8
   workflow: "short_reads"  # short_reads, short_reads_mapped
+                           # short_reads -> returns bams with all reads 
+                           # short_reads_mapped -> returns bams with only mapped reads
