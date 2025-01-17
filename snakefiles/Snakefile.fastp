@@ -1,0 +1,20 @@
+from snakemake.utils import min_version
+min_version("6.0")
+
+configfile: "config/config.yaml"
+
+module fastp:
+    snakefile:
+        # can use URL
+        #"https://raw.githubusercontent.com/magwenelab/snakemake_workflows/main/fastp/workflow/Snakefile"
+        # or local path
+        "/home/pmagwene/gits/snakemake_workflows/fastp/workflow/Snakefile"
+    config: config
+
+use rule * from fastp as fastp_*
+
+
+rule all:
+    input:
+        rules.fastp_all.input,
+    default_target: True

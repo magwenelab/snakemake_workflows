@@ -1,0 +1,7 @@
+name: minimap
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - fastp
+

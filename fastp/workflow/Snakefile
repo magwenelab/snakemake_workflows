@@ -1,0 +1,65 @@
+# fastp workflow for cleaning FASTQ files
+
+import os.path
+from pathlib import Path
+import pandas as pd
+
+configfile: "config/config.yaml"
+
+SAMPLE_TABLE = pd.read_csv(config["fastp"]["sample_table"]).set_index("sample", drop=False)
+SAMPLES = list(set(SAMPLE_TABLE["sample"]))
+
+OUTDIR = config["output_directory"]
+OUTPATH = Path(OUTDIR) / "fastp"
+
+
+def input_from_df(wildcards):
+    s = SAMPLE_TABLE.loc[wildcards.sample,]
+    return {
+        "fq1": s["fq1"],
+        "fq2": s["fq2"],
+    }
+
+
+rule all:
+    input:
+        expand(OUTPATH / "{sample}/{sample}_R1_cleaned.fastq.gz", sample=SAMPLES),
+        expand(OUTPATH / "{sample}/{sample}_R2_cleaned.fastq.gz", sample=SAMPLES),
+        expand(OUTPATH / "softlinked/{sample}_R1_cleaned.fastq.gz", sample=SAMPLES),
+        expand(OUTPATH / "softlinked/{sample}_R2_cleaned.fastq.gz", sample=SAMPLES),
+
+
+rule fastp:
+    input:
+        unpack(input_from_df)
+    output: 
+        out1 = OUTPATH / "{sample}/{sample}_R1_cleaned.fastq.gz",
+        out2 = OUTPATH / "{sample}/{sample}_R2_cleaned.fastq.gz",
+        report = OUTPATH / "{sample}/{sample}_fastp_report.html"
+    params:
+        extra = config["fastp"]["extra_params"],   
+    conda:
+        "envs/fastp.yaml"
+    threads: 
+        config["fastp"]["threads"]        
+    shell:
+        "fastp --thread {threads} {params.extra}  "
+        "--in1 {input.fq1} "
+        "--in2 {input.fq2} "
+        "--out1 {output.out1} "
+        "--out2 {output.out2} "
+        "-h {output.report} "
+
+
+
+rule make_links:
+    input:  
+        fq1 = rules.fastp.output.out1,
+        fq2 = rules.fastp.output.out2,
+    output:
+        fq1 = OUTPATH / "softlinked/{sample}_R1_cleaned.fastq.gz",
+        fq2 = OUTPATH / "softlinked/{sample}_R2_cleaned.fastq.gz",
+    shell:
+        "ln -s {workflow.workdir_init}/{input.fq1} {output.fq1} "
+        " && "
+        "ln -s {workflow.workdir_init}/{input.fq2} {output.fq2} "
