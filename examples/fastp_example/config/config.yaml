@@ -1,0 +1,7 @@
+
+output_directory: "results"
+
+fastp:
+  sample_table: "config/fastp_table.csv" 
+  extra_params: "--dont_overwrite --dedup"
+  threads: 8

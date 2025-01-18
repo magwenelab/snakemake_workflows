@@ -1,0 +1,4 @@
+sample,fq1,fq2
+PMY001,../rel/path/to/PMY001_R1.fastq.gz,../rel/path/to/PMY001_R2.fastq.gz
+PMY002,../rel/path/to/PMY002_R1.fastq.gz,../rel/path/to/PMY002_R2.fastq.gz
+PMY003,../rel/path/to/PMY003_R1.fastq.gz,../rel/path/to/PMY003_R2.fastq.gz

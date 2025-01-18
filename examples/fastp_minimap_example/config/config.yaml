@@ -1,0 +1,15 @@
+
+output_directory: "results"
+
+fastp:
+  sample_table: "config/fastp_table.csv" 
+  extra_params: "--dont_overwrite --dedup"
+  threads: 8
+
+minimap:
+  sample_table: "config/minimap_table.csv" 
+  extra_params: ""
+  threads: 8
+  workflow: "short_reads_mapped"  # short_reads, short_reads_mapped
+                           # short_reads -> returns bams with all reads 
+                           # short_reads_mapped -> returns bams with only mapped reads

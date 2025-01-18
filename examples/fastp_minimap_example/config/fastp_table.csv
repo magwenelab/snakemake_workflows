@@ -1,0 +1,4 @@
+sample,fq1,fq2,refgenome
+PMY001,reads/PMY001_R1.fastq.gz,reads/PMY001_R2.fastq.gz
+PMY002,reads/PMY002_R1.fastq.gz,reads/PMY002_R2.fastq.gz
+PMY003,reads/PMY003_R1.fastq.gz,reads/PMY003_R2.fastq.gz

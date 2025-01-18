@@ -1,0 +1,4 @@
+sample,fq1,fq2,refgenome
+PMY001,results/fastp/softlinked/PMY001_R1_cleaned.fastq.gz,results/fastp/softlinked/PMY001_R2_cleaned.fastq.gz,../path/to/refgenome.fa
+PMY002,results/fastp/softlinked/PMY002_R1_cleaned.fastq.gz,results/fastp/softlinked/PMY002_R2_cleaned.fastq.gz,../path/to/refgenome.fa
+PMY003,results/fastp/softlinked/PMY003_R1_cleaned.fastq.gz,results/fastp/softlinked/PMY003_R2_cleaned.fastq.gz,../path/to/refgenome.fa
