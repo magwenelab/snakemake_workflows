@@ -35,7 +35,8 @@ rule fastp:
     output: 
         out1 = OUTPATH / "{sample}/{sample}_R1_cleaned.fastq.gz",
         out2 = OUTPATH / "{sample}/{sample}_R2_cleaned.fastq.gz",
-        report = OUTPATH / "{sample}/{sample}_fastp_report.html"
+        html_report = OUTPATH / "{sample}/{sample}.html",
+        json_report = OUTPATH / "{sample}/{sample}.json"
     params:
         extra = config["fastp"]["extra_params"],   
     conda:
@@ -48,7 +49,8 @@ rule fastp:
         "--in2 {input.fq2} "
         "--out1 {output.out1} "
         "--out2 {output.out2} "
-        "-h {output.report} "
+        "-h {output.html_report} "
+        "-j {output.json_report} "
 
 
 

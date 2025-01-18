@@ -19,14 +19,6 @@ module minimap:
         "/home/pmagwene/gits/snakemake_workflows/fastp/workflow/Snakefile"
     config: config    
 
-module minimap:
-    snakefile:
-        # can use URL
-        #"https://raw.githubusercontent.com/magwenelab/snakemake_workflows/main/minimap/workflow/Snakefile"
-        # or local path
-        "/home/pmagwene/gits/snakemake_workflows/minimap/workflow/Snakefile"
-    config: config
-
 
 use rule * from fastp as fastp_*
 use rule * from minimap as minimap_*
